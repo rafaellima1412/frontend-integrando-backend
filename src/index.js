@@ -1,11 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import "./index.css";
 
 /*
 CRUD (Create, Read (Single & All), Update, Delete)
-
 Create -> Formulário de criação
 Read All -> Listagem de itens cadastrados
 Read Single -> Visualização de um item específico
@@ -51,14 +50,12 @@ const lista = [
       "https://www.petlove.com.br/images/breeds/193082/profile/original/husky_siberian-p.jpg?1532539123",
   },
 ];
-// aqui faço endpoint diferente para nao trazer tudo
-function Item(props) {
-  const indice = props.indice;
 
-  const item = lista[indice];
+function Item(props) {
+  const item = props.item;
 
   return (
-    <a href={"/visualizar/" + indice}>
+    <a href={"/visualizar/" + item._id}>
       <div className="item">
         <h1 className="item__title">{item.nome}</h1>
         <img src={item.imagemUrl} alt={item.nome} width="200" />
@@ -66,30 +63,50 @@ function Item(props) {
     </a>
   );
 }
-// aqui trago tudo
+
 function Lista() {
-  console.log("lista caregada");
-  //integrando com backend
-  //como e um promisse tem que coloca ro wait
-  const obterresultado = async () => {
-    console.log("obter resultado");
+  console.log("Lista carregada.");
+
+  // useState
+  const [listaResultadoApi, atualizarListaResultadoApi] = useState("");
+
+  // useEffect
+  useEffect(() => {
+    console.log({ listaResultadoApi });
+
+    if (!listaResultadoApi) {
+      obterResultado();
+    }
+  });
+
+  // Declaramos a função para obter resultados
+  const obterResultado = async () => {
+    console.log("Obter resultado");
+
+    // Fazemos a requisição no Backend
     const resultado = await fetch("https://backend-flexivel.herokuapp.com", {
       headers: new Headers({
-        //que foi definido no headers
-        Authorization: "rafaellima1412@gmail.com",
+        Authorization: "profpaulo.salvatore@gmail.com",
       }),
     });
-  };
-  console.log(resultado);
-  const dados = await resultado.json();
-  console.log(dados);
 
-  //chamamos a função para rodar
-  obterresultado();
+    console.log({ resultado });
+
+    const dados = await resultado.json();
+
+    console.log({ dados });
+
+    atualizarListaResultadoApi(dados);
+  };
+
+  if (!listaResultadoApi) {
+    return <div>Carregando...</div>;
+  }
+
   return (
     <div className="lista">
-      {lista.map((item, index) => (
-        <Item indice={index} key={index} />
+      {listaResultadoApi.map((item, index) => (
+        <Item item={item} key={index} />
       ))}
     </div>
   );
@@ -135,6 +152,7 @@ function App() {
       <Header />
       <Switch>
         <Route path="/" exact={true} component={ListarItens} />
+
         <Route path="/visualizar/:id" component={VisualizarItem} />
       </Switch>
       <Footer />
