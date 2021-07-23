@@ -12,159 +12,228 @@ Update -> Formulário de edição
 Delete -> Remover um item específico
 */
 
-// Read All
-// Precisa dos dados que serão exibidos
-// A estrutura desses dados precisa possuir 'Nome' e 'URL da Imagem'
-
-// Decidam qual será o tema da sua aplicação
-// O meu será de Raças de Cachorro
-
-const lista = [
-  {
-    id: 1,
-    nome: "Pinscher",
-    imagemUrl: "https://pbs.twimg.com/media/Da3FmbSWkAEuwUJ.jpg",
-  },
-  {
-    id: 2,
-    nome: "Golden Retriever",
-    imagemUrl:
-      "https://f.i.uol.com.br/fotografia/2017/10/27/150912457859f369e28eaa5_1509124578_3x2_md.jpg",
-  },
-  {
-    id: 3,
-    nome: "Labrador",
-    imagemUrl:
-      "https://www.clubeparacachorros.com.br/wp-content/uploads/2014/07/labrador-amarelo.jpg",
-  },
-  {
-    id: 4,
-    nome: "Yorkshire",
-    imagemUrl:
-      "https://www.petlove.com.br/images/breeds/192471/profile/original/yorkshire-p.jpg?1532539683",
-  },
-  {
-    id: 5,
-    nome: "Husky Siberiano",
-    imagemUrl:
-      "https://www.petlove.com.br/images/breeds/193082/profile/original/husky_siberian-p.jpg?1532539123",
-  },
-];
-
 function Item(props) {
-  const item = props.item;
+    const item = props.item;
 
-  return (
-    <a href={"/visualizar/" + item._id}>
-      <div className="item">
-        <h1 className="item__title">{item.nome}</h1>
-        <img src={item.imagemUrl} alt={item.nome} width="200" />
-      </div>
-    </a>
-  );
+    return (
+        <a href={"/visualizar/" + item._id}>
+            <div className="item">
+                <h1 className="item__title">{item.nome}</h1>
+                <img src={item.imagemUrl} alt={item.nome} width="200" />
+            </div>
+        </a>
+    );
 }
 
 function Lista() {
-  console.log("Lista carregada.");
+    console.log("Lista carregada.");
 
-  // useState
-  const [listaResultadoApi, atualizarListaResultadoApi] = useState("");
+    // useState
+    const [listaResultadoApi, atualizarListaResultadoApi] = useState("");
 
-  // useEffect
-  useEffect(() => {
-    console.log({ listaResultadoApi });
+    // useEffect
+    useEffect(() => {
+        console.log({ listaResultadoApi });
 
-    if (!listaResultadoApi) {
-      obterResultado();
-    }
-  });
-
-  // Declaramos a função para obter resultados
-  const obterResultado = async () => {
-    console.log("Obter resultado");
-
-    // Fazemos a requisição no Backend
-    const resultado = await fetch("https://backend-flexivel.herokuapp.com", {
-      headers: new Headers({
-        Authorization: "profpaulo.salvatore@gmail.com",
-      }),
+        if (!listaResultadoApi) {
+            obterResultado();
+        }
     });
 
-    console.log({ resultado });
+    // Declaramos a função para obter resultados
+    const obterResultado = async () => {
+        console.log("Obter resultado");
 
-    const dados = await resultado.json();
+        // Fazemos a requisição no Backend
+        const resultado = await fetch("https://backend-flexivel.herokuapp.com",
+            {
+                headers: new Headers({
+                    Authorization: "profpaulo.salvatore@gmail.com",
+                }),
+            }
+        );
 
-    console.log({ dados });
+        console.log({ resultado });
 
-    atualizarListaResultadoApi(dados);
-  };
+        const dados = await resultado.json();
 
-  if (!listaResultadoApi) {
-    return <div>Carregando...</div>;
-  }
+        console.log({ dados });
 
-  return (
-    <div className="lista">
-      {listaResultadoApi.map((item, index) => (
-        <Item item={item} key={index} />
-      ))}
-    </div>
-  );
+        atualizarListaResultadoApi(dados);
+    };
+
+    if (!listaResultadoApi) {
+        return <div>Carregando...</div>;
+    }
+
+    return (
+        <div className="lista">
+            {listaResultadoApi.map((item, index) => (
+                <Item item={item} key={index} />
+            ))}
+        </div>
+    );
 }
 
 function Header() {
-  return (
-    <header className="header">
-      <a href="/">
-        <img
-          src="https://www.oceanbrasil.com/img/general/logoOceanI.png"
-          alt="Samsung Ocean"
-          width="300"
-        />
-      </a>
-    </header>
-  );
+    return (
+        <header className="header">
+            <a href="/">
+                <img
+                    src="https://www.oceanbrasil.com/img/general/logoOceanI.png"
+                    alt="Samsung Ocean"
+                    width="300"
+                />
+            </a>
+
+            <a href="/adicionar">Adicionar item</a>
+        </header>
+    );
 }
 
 function Footer() {
-  return <footer className="footer">Todos os direitos reservados.</footer>;
+    return <footer className="footer">Todos os direitos reservados.</footer>;
 }
 
 function ListarItens() {
-  return (
-    <div>
-      <Lista />
-    </div>
-  );
+    return (
+        <div>
+            <Lista />
+        </div>
+    );
 }
 
 function VisualizarItem(props) {
-  return (
-    <div>
-      <Item indice={props.match.params.id} />
-    </div>
-  );
+    const id = props.match.params.id;
+
+    /*
+    useState e useEffect
+    Fazer uma nova requisição
+    Usar o fetch
+    async/await
+    */
+
+    const [item, setItem] = useState("");
+
+    useEffect(() => {
+        if (!item) {
+            getItemData();
+        }
+    });
+
+    const getItemData = async () => {
+        console.log("Get Item Data", id);
+
+        const resultado = await fetch(
+            "https://backend-flexivel.herokuapp.com/" + id,
+            {
+                headers: new Headers({
+                    Authorization: "profpaulo.salvatore@gmail.com",
+                }),
+            }
+        );
+
+        const dados = await resultado.json();
+
+        setItem(dados);
+    };
+
+    return (
+        <div>
+            <Item item={item} />
+        </div>
+    );
+}
+
+function AdicionarItem(props) {
+    const handleSubmit = async event => {
+        event.preventDefault();
+
+        const nome = event.target.nome.value;
+        const imagemUrl = event.target.imagemUrl.value;
+
+        const dados = {
+            nome,
+            imagemUrl,
+        };
+
+        const dadosEmJson = JSON.stringify(dados);
+
+        console.log(dados, dadosEmJson);
+
+        /*
+        fetchão?
+        async/await
+        route nova?
+        Como fazer ser verbo POST? Pq até então a gente só tinha GET
+        Já temos o JSON. passar "dados" na URL
+        Informar Headers
+        Validar se deu bom ou se deu ruim
+        */
+
+        const resultado = await fetch(
+            "https://backend-flexivel.herokuapp.com/",
+            {
+                headers: new Headers({
+                    Authorization: "profpaulo.salvatore@gmail.com",
+                    "Content-Type": "application/json",
+                }),
+                method: "POST",
+                body: dadosEmJson,
+            }
+        );
+
+        console.log(resultado);
+
+        const jsonResultado = await resultado.json();
+
+        console.log(jsonResultado);
+
+        props.history.push("/visualizar/" + jsonResultado._id);
+    };
+
+    return (
+        <div>
+            <form className="form" onSubmit={handleSubmit}>
+                <label htmlFor="nome" className="form__label">Nome:</label>
+                <br />
+
+                <input type="text" id="nome" name="nome" className="form__input" />
+                <br />
+
+                <label htmlFor="imagemUrl" className="form__label">URL da Imagem:</label>
+                <br />
+
+                <input type="text" id="imagemUrl" name="imagemUrl" className="form__input" />
+                <br />
+
+                <input type="submit" value="Adicionar" className="form__submit" />
+            </form>
+        </div>
+    );
 }
 
 function App() {
-  return (
-    <div className="app">
-      <Header />
-      <Switch>
-        <Route path="/" exact={true} component={ListarItens} />
+    return (
+        <div className="app">
+            <Header />
+            <Switch>
+                <Route path="/" exact={true} component={ListarItens} />
 
-        <Route path="/visualizar/:id" component={VisualizarItem} />
-      </Switch>
-      <Footer />
-    </div>
-  );
+                <Route path="/visualizar/:id" component={VisualizarItem} />
+
+                <Route path="/adicionar" component={AdicionarItem} />
+            </Switch>
+            <Footer />
+        </div>
+    );
 }
 
 ReactDOM.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>,
-  document.getElementById("root")
+    <React.StrictMode>
+        <BrowserRouter>
+            <App />
+        </BrowserRouter>
+    </React.StrictMode>,
+    document.getElementById("root")
 );
